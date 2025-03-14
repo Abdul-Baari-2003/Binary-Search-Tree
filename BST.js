@@ -11,17 +11,19 @@ export class Tree{
         this.root = this.buildTree(array);
     }
 
-    buildTree(array){
-        if(array.length === 0) return null;
-        let new_array = [...new Set(array)];
-        new_array.sort((a, b) => a- b);
+    buildTree(array) {
+        if (!array || array.length === 0) return null;
+    
+        let new_array = [...new Set(array)].sort((a, b) => a - b);
         let middle_index = Math.floor(new_array.length / 2);
         let root_node = new Node(new_array[middle_index]);
-
+    
         root_node.left = this.buildTree(new_array.slice(0, middle_index));
         root_node.right = this.buildTree(new_array.slice(middle_index + 1));
+    
         return root_node;
     }
+    
 
     insert(value){
         if(this.root === null){
@@ -83,13 +85,14 @@ export class Tree{
                 parent_node.right = null;
             }
         }
-        else if(current_node.left === null || current_node.right === null){
+        else if (current_node.left === null || current_node.right === null) {
             const child_node = current_node.left || current_node.right;
-            if(parent_node.left === current_node){
+            if (parent_node === null) {
+                this.root = child_node; // If deleting the root node
+            } else if (parent_node.left === current_node) {
                 parent_node.left = child_node;
-            }
-            else{
-                parent_node.right = child_node
+            } else {
+                parent_node.right = child_node;
             }
         }
         else{
@@ -110,21 +113,17 @@ export class Tree{
         }
     }
 
-    find(value){
-        if(this.root === null){
-            return;
-        }
+    find(value) {
         let current_node = this.root;
-        while(current_node !== null && current_node.data !== value){
-            if(current_node.data > value){
-                current_node = current_node.left;
+        while (current_node !== null) {
+            if (current_node.data === value) {
+                return current_node;
             }
-            else if(current_node.data < value){
-                current_node = current_node.right;
-            }
+            current_node = value < current_node.data ? current_node.left : current_node.right;
         }
-        return current_node;
+        return null; // Value not found
     }
+    
 
     levelOrder(callback){
         if(!callback){
@@ -217,29 +216,22 @@ export class Tree{
        return Math.max(leftHeight, rightHeight) + 1;
     }
 
-    depth(node){
-        if(node === null){
-            return -1;
-        }
+    depth(node) {
+        if (node === null || this.root === null) return -1;
+    
         let current_node = this.root;
         let depth = 0;
-
-        while(current_node !== null && current_node !== node){
-            if(node.data < current_node.data){
-                current_node = current_node.left;
+    
+        while (current_node !== null) {
+            if (node.data === current_node.data) {
+                return depth;
             }
-            else{
-                current_node = current_node.right;
-            }
+            current_node = node.data < current_node.data ? current_node.left : current_node.right;
             depth++;
         }
-        if(current_node === node){
-            return depth;
-        }
-        else{
-            return -1;
-        }
+        return -1;
     }
+    
 
     isBalanced(){
         const balance = (node) => {
@@ -259,13 +251,12 @@ export class Tree{
         return balance(this.root);     
     }
 
-    rebalance(){
+    rebalance() {
         const values = [];
-        this.inOrder((node) => {
-            values.push(node.data)
-        });
+        this.inOrder((node) => values.push(node.data));
         this.root = this.buildTree(values);
     }
+    
 }
 
 export const prettyPrint = (node, prefix = "", isLeft = true) => {
